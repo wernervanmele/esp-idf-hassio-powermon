@@ -1,0 +1,9 @@
+.pio
+.vscode
+build
+temp_softw
+.DS_Store
+dependencies.lock
+sdkconfig.mh*
+sdkconfig.old
+components/*/*
