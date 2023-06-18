@@ -11,7 +11,7 @@ extern "C" {
 #define AUTODISCOVERY_INTERVAL  pdMS_TO_TICKS(15000U * 60U)
 
 #ifdef USE_MDNS
-#define MDNS_SERVICE (_mqtt)
+#define MDNS_SERVICE (_mqtt_whatever_this_is_not_used_anyway)
 #else
 #define MQTT_URL    "mqtt://192.168.39.39:9999"         // MQTT Server connection string, in my case Home Assistant, mqtt credentials see credentials.h
 #endif

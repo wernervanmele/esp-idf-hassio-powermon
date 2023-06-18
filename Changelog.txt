@@ -1,0 +1,9 @@
+Date                tag 
+------------------------
+xx-xx-2023          v0.0.2
+- Documentation updates.
+- Add Fritzing drawing
+
+--
+17-jun-2023         v0.0.1
+- Initial commit

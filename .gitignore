@@ -7,3 +7,4 @@ dependencies.lock
 sdkconfig.mh*
 sdkconfig.old
 components/*/*
+main/credentials.h

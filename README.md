@@ -11,7 +11,8 @@ Available on Amazon or Aliexpress or your local store, search for "Level Shifter
 A ESP32 board is required as well, probably any kind of ESP32 base dev board will do but unfortunately I've tried an ESP32S3 mini board which didn't work, probably due to lack of knowledge on this board.  
 In my setup I used a NodeMCU clone alike ESP-WROOM-32 based mini board (MH-ET Live ESP32 MiniKIT to be exact :-) ).  
   
-
+![](images/ESP_PowerMon_bb.jpg)
+  
 ## Dependencies
 - ESP-IDF Framework https://github.com/espressif/esp-idf/releases/tag/v5.0.2
 - Get the esp-protocols components from Espressif
@@ -58,9 +59,67 @@ You might want to increase your logging level:
 CONFIG_LOG_DEFAULT_LEVEL_INFO=y  
 \# CONFIG_LOG_DEFAULT_LEVEL_DEBUG is not set  
 \# CONFIG_LOG_DEFAULT_LEVEL_VERBOSE is not set  
-
   
+### PZEM-004T v3.0 Serial Configuration  
+In the beginning of main.c you can find the ESP UART setup to communicate with the sensor module.  
+```c
+pzem_setup_t pzConf = {
+    .pzem_uart   = UART_NUM_2,       /*  <== Specify the UART you want to use, UART_NUM_0, UART_NUM_1, UART_NUM_2 (ESP32 specific) */
+    .pzem_rx_pin = GPIO_NUM_16,      /*  <== GPIO for RX */
+    .pzem_tx_pin = GPIO_NUM_17,      /*  <== GPIO for TX */
+    .pzem_addr   = PZ_DEFAULT_ADDRESS,   /*  If your module has a different address, specify here or update the variable in pzem004tv3.h */
+};
+```
+Depending on which type of ESP32 module/devkit/board you use the combination of UART and GPIO's might hav eimpact on some functionality ofthe board, check the documentation for the correct information.  
+I use a module with a regular ESP32-WROOM-32 chip and a combination of UART wirth GPIO's 16 and 17 works fine.  
+  
+### MQTT Configuration   
+In main.h enable USE_MDNS, via an mDNS request an attempt is odne to discover your mqqt broker on your local network, of this doesn't work a fallback is done to a mqtt url which can be set in **config.h**   
+Create in your main folder a header file called credentials.h and define your mqtt user and password of your broker.  
+```c
+#define MQTT_USER "mqtt-bobby"
+#define MQTT_PASS "mqtt-secret-4321"
+```
 
+## WiFi  
+I enforce WIFI_AUTH_WPA3_PSK and forgot to make it configurable (or a bit lazy ).  If your WiFi AP does not support WPA3 you can modify  
+main/wifi/wifi_connect.c and replace WIFI_AUTH_WPA3_PSK with for example WIFI_AUTH_WPA2_PSK, WIFI_AUTH_WPA2_WPA3_PSK (check esp_wifi_types.h).  
+
+```c
+    wifi_config_t wifi_config = {
+        .sta                    =
+        {
+            .ssid               = ESP_WIFI_SSID,
+            .password           = ESP_WIFI_PASS,
+            .threshold.authmode = WIFI_AUTH_WPA3_PSK,
+        },
+    };  
+```  
+The WiFi SSID and PASSWORD can be set in **credentials.h**  
+```c
+#define ESP_WIFI_SSID "MY_WIFI_SSID"
+#define ESP_WIFI_PASS "WIFI_PASSWORD"
+```
+  
+ Choose one of the auth mechanisms that's supported by your WiFi access point/router.   
+.threshold.authmode parameters: 
+  
+```c
+typedef enum {
+    WIFI_AUTH_OPEN = 0,         /**< authenticate mode : open */
+    WIFI_AUTH_WEP,              /**< authenticate mode : WEP */
+    WIFI_AUTH_WPA_PSK,          /**< authenticate mode : WPA_PSK */
+    WIFI_AUTH_WPA2_PSK,         /**< authenticate mode : WPA2_PSK */
+    WIFI_AUTH_WPA_WPA2_PSK,     /**< authenticate mode : WPA_WPA2_PSK */
+    WIFI_AUTH_WPA2_ENTERPRISE,  /**< authenticate mode : WPA2_ENTERPRISE */
+    WIFI_AUTH_WPA3_PSK,         /**< authenticate mode : WPA3_PSK */
+    WIFI_AUTH_WPA2_WPA3_PSK,    /**< authenticate mode : WPA2_WPA3_PSK */
+    WIFI_AUTH_WAPI_PSK,         /**< authenticate mode : WAPI_PSK */
+    WIFI_AUTH_OWE,              /**< authenticate mode : OWE */
+    WIFI_AUTH_MAX
+} wifi_auth_mode_t;
+```  
+  
 ### Useful ESP-IDF Documentation
 
 mDNS Documentation  
@@ -79,7 +138,7 @@ https://docs.espressif.com/projects/esp-idf/en/latest/esp32/contribute/style-gui
 Memory Types
 https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/memory-types.html
 
-Tests showed that using DRAM_ATTR for crcTable[] improved performance from 11 microseconds to 4 microseconds.  
+Tests showed that using DRAM_ATTR for crcTable[] improved performance from 11 microseconds to 4 microseconds.  Pretty useless in my setup but still amazing.  
 
 Rules for developing safety critical code (NASA)  
 https://www.cs.otago.ac.nz/cosc345/resources/nasa-10-rules.pdf  
