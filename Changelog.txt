@@ -1,5 +1,11 @@
 Date                tag 
 ------------------------
+
+20-06-2023          v0.0.3
+- Make additional wifi parameters configurable via config.h
+- Some code cleanup.
+
+---
 xx-xx-2023          v0.0.2
 - Documentation updates.
 - Add Fritzing drawing

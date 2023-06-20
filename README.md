@@ -8,7 +8,7 @@ Or Aliexpress for lower prices if you have patience.
 The PZEM-004T module require 5Volts, the ESP32 mcu requires 3.3Volts so it is recommended to use a level shifter for the serial connection.  
 Available on Amazon or Aliexpress or your local store, search for "Level Shifter 3.3v to 5v".  
   
-A ESP32 board is required as well, probably any kind of ESP32 base dev board will do but unfortunately I've tried an ESP32S3 mini board which didn't work, probably due to lack of knowledge on this board.  
+A ESP32 board is required as well, probably any kind of ESP32 base dev board will do but unfortunately I've tried with an Wemos LOLIN ESP32S3 mini board but couldn't get it to work probably due to lack of knowledge on my side, the S3 is a bit different.
 In my setup I used a NodeMCU clone alike ESP-WROOM-32 based mini board (MH-ET Live ESP32 MiniKIT to be exact :-) ).  
   
 ![](images/ESP_PowerMon_bb.jpg)
@@ -21,7 +21,7 @@ https://github.com/espressif/esp-protocols/
 - Add the mDNS components to your root CmakeLists file  
 **set(EXTRA_COMPONENT_DIRS "\<Local Path on your HD>/ESP-IDF/esp/esp-protocols/components/mdns")**  
 
-- VScode + PlatformIO + Espressiff IDF extention.  
+- VSCode + Espressif IDF extension.  
   
   
 
@@ -82,43 +82,13 @@ Create in your main folder a header file called credentials.h and define your mq
 ```
 
 ## WiFi  
-I enforce WIFI_AUTH_WPA3_PSK and forgot to make it configurable (or a bit lazy ).  If your WiFi AP does not support WPA3 you can modify  
-main/wifi/wifi_connect.c and replace WIFI_AUTH_WPA3_PSK with for example WIFI_AUTH_WPA2_PSK, WIFI_AUTH_WPA2_WPA3_PSK (check esp_wifi_types.h).  
-
-```c
-    wifi_config_t wifi_config = {
-        .sta                    =
-        {
-            .ssid               = ESP_WIFI_SSID,
-            .password           = ESP_WIFI_PASS,
-            .threshold.authmode = WIFI_AUTH_WPA3_PSK,
-        },
-    };  
-```  
-The WiFi SSID and PASSWORD can be set in **credentials.h**  
+~~I enforce WIFI_AUTH_WPA3_PSK and forgot to make it configurable (or a bit lazy )~~.  
+Various authentication methods and some other parameters are now configurable in **config.h**  
+The WiFi SSID and PASSWORD can be set in **credentials.h**  (if the file does not exist please create one)
 ```c
 #define ESP_WIFI_SSID "MY_WIFI_SSID"
 #define ESP_WIFI_PASS "WIFI_PASSWORD"
 ```
-  
- Choose one of the auth mechanisms that's supported by your WiFi access point/router.   
-.threshold.authmode parameters: 
-  
-```c
-typedef enum {
-    WIFI_AUTH_OPEN = 0,         /**< authenticate mode : open */
-    WIFI_AUTH_WEP,              /**< authenticate mode : WEP */
-    WIFI_AUTH_WPA_PSK,          /**< authenticate mode : WPA_PSK */
-    WIFI_AUTH_WPA2_PSK,         /**< authenticate mode : WPA2_PSK */
-    WIFI_AUTH_WPA_WPA2_PSK,     /**< authenticate mode : WPA_WPA2_PSK */
-    WIFI_AUTH_WPA2_ENTERPRISE,  /**< authenticate mode : WPA2_ENTERPRISE */
-    WIFI_AUTH_WPA3_PSK,         /**< authenticate mode : WPA3_PSK */
-    WIFI_AUTH_WPA2_WPA3_PSK,    /**< authenticate mode : WPA2_WPA3_PSK */
-    WIFI_AUTH_WAPI_PSK,         /**< authenticate mode : WAPI_PSK */
-    WIFI_AUTH_OWE,              /**< authenticate mode : OWE */
-    WIFI_AUTH_MAX
-} wifi_auth_mode_t;
-```  
   
 ### Useful ESP-IDF Documentation
 
@@ -134,6 +104,26 @@ https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/build-sys
 
 ESP-IDF Style guide  
 https://docs.espressif.com/projects/esp-idf/en/latest/esp32/contribute/style-guide.html  
+( I use the Astyle extension as mentione din the style guide with the following settings in settings.json)
+```json
+    "astyle.c.enable": true,
+    "astyle.executable": "/opt/homebrew/bin/astyle",
+    "[c]": {
+        "editor.defaultFormatter": "chiehyu.vscode-astyle"
+    },
+    "astyle.cmd_options": [
+        "--style=otbs",
+        "--attach-classes",
+        "--indent=spaces=4",
+        "--convert-tabs",
+        "--align-pointer=name",
+        "--align-reference=name",
+        "--keep-one-line-statements",
+        "--pad-header",
+        "--pad-oper",
+        "--lineend=linux",
+    ],
+```
 
 Memory Types
 https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/memory-types.html

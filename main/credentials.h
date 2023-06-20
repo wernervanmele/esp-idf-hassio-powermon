@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#define ESP_WIFI_SSID "JOEPLA"
+#define ESP_WIFI_SSID "JOEPLA_IOT"
 #define ESP_WIFI_PASS "shoarma2burn"
 
 #define MQTT_USER "mqtt-user"

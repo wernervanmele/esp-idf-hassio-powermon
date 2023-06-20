@@ -52,8 +52,6 @@ void connect_wifi( void )
 
     wifi_country_t cntrycfg = {
         .cc = WIFI_COUNTRY,
-        .schan = 1,
-        .nchan = 11,
         .policy = WIFI_COUNTRY_POLICY_MANUAL,
     };
 
@@ -75,7 +73,11 @@ void connect_wifi( void )
             /* Setting a password implies station will connect to all security modes including WEP/WPA.
              * However these modes are deprecated and not advisable to be used. Incase your Access point
              * doesn't support WPA2, these mode can be enabled by commenting below line */
-            .threshold.authmode = WIFI_AUTH_WPA3_PSK,
+            .threshold.authmode = WIFI_TRESHOLD_AUTHMODE,
+            .pmf_cfg.required   = WIFI_PMF_ENABLED,
+            .channel            = WIFI_CHANNEL,
+            .scan_method        = WIFI_SCAN_METHOD,
+            .sort_method        = WIFI_AP_SORT_METHOD,
         },
     };
     ESP_ERROR_CHECK( esp_wifi_set_mode( WIFI_MODE_STA ) );
