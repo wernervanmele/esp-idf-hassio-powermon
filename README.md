@@ -1,5 +1,48 @@
-# PZEM-004T v3.0 Power monitoring (ESP-IDF)  
+# PZEM-004T v3.0 Power monitoring (ESP-IDF) 
+
+Inspired by the Energy monitoring project from Savjee https://github.com/Savjee/home-energy-monitor  I wanted to create my own version.  
+Mainly to have visibility on my power consumption but also to learn ESP-IDF.  This projects covers a lot of functionality which was ideal to learn,  
+it requires WiFi, mDNS, mqtt, UART communication, Home assistant mqtt auto discovery, FreeRTOS, cJSON.  
   
+During startup a wifi connection is made, once successful a mDNS request is send over the network to discover any mqtt server (in my case on Home Assistant) (mDNS can be disabled and you can manually configure a broker url as well).    
+```console
+I (12643) MDNS_INIT: mdns hostname set to: [esp32-powermon-new02]
+I (12643) APP_MAIN: STARTING MQTT
+I (12873) MDNS_QUERY: MQTT Service found on the network: host [homeassistant], port: [1883], ip-address: [192.168.28.16]
+I (12873) MDNS_QUERY: Et voila le mqtt broker url: mqtt://192.168.28.16:1883
+I (12883) APP_MAIN: MQTT Publisher_Task is up and running
+```
+  
+A connection with the mqtt broker is established and auto disverymessages are send for all entities.  
+An example auto discovery message looks like this:    
+```json
+{
+	"name":	"Frequency",
+	"device_class":	"frequency",
+	"unit_of_measurement":	"Hz",
+	"state_topic":	"homeassistant/sensor/esp32_powermon_new02/state",
+	"value_template":	"{{ value_json.frequency | round(1) }}",
+	"icon":	"mdi:sine-wave",
+	"unique_id":	"xx-xx-xx-xx-3b-ec-frequency",
+	"device":	{
+		"name":	"esp32_powermon_new02",
+		"manufacturer":	"Wespressif",
+		"identifiers":	"xx:xx:xx:xx:3b:ec"
+	}
+}
+```
+All json related messages are created with the cJSON component.  
+Once all discovery messages are published the sensor values are published every minute to Home Assistant:  
+  
+**Published measurements:**  
+
+![](images/mqtt_Explorer_values.png)  
+  
+If everything goes well the device should show up in Home Assistant:  
+  
+![](images/homeassistant_device_values.png)  
+
+
  ## Hardware   
 PZEM-004T v3.0 Power monitory module (https://innovatorsguru.com/pzem-004t-v3/). 
 Can be found on Amazon for approx. 21Euro, I recommend the split core version because it is easier to implement in existing installations.  
@@ -8,7 +51,8 @@ Or Aliexpress for lower prices if you have patience.
 The PZEM-004T module require 5Volts, the ESP32 mcu requires 3.3Volts so it is recommended to use a level shifter for the serial connection.  
 Available on Amazon or Aliexpress or your local store, search for "Level Shifter 3.3v to 5v".  
   
-A ESP32 board is required as well, probably any kind of ESP32 base dev board will do but unfortunately I've tried with an Wemos LOLIN ESP32S3 mini board but couldn't get it to work probably due to lack of knowledge on my side, the S3 is a bit different.
+A ESP32 board is required as well, probably any kind of ESP32 base dev board will do ~~but unfortunately I've tried with an Wemos LOLIN ESP32S3 mini board but couldn't get it to work probably due to lack of knowledge on my side, the S3 is a bit different.~~  
+And recently tested a LILYGO ESP32-S3 T-Display with success ! :-).  
 In my setup I used a NodeMCU clone alike ESP-WROOM-32 based mini board (MH-ET Live ESP32 MiniKIT to be exact :-) ).  
   
 ![](images/ESP_PowerMon_bb.jpg)
@@ -22,6 +66,7 @@ https://github.com/espressif/esp-protocols/
 **set(EXTRA_COMPONENT_DIRS "\<Local Path on your HD>/ESP-IDF/esp/esp-protocols/components/mdns")**  
 
 - VSCode + Espressif IDF extension.  
+- Eclipse + Espressif plugin.  
   
   
 
